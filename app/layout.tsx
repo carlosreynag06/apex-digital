@@ -1,46 +1,65 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter, DM_Serif_Display } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Inter } from "next/font/google";
+import ClientWrapper from "@/components/ClientWrapper";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-dm-serif-display",
+  weight: "400",
+});
 
 export const metadata: Metadata = {
-  title: "Sabio al Vivir — Claridad, calma y propósito",
+  title: "IQ Integrations | Intelligent Luxury",
   description:
-    "Acompañamiento profesional y recursos prácticos para vivir con mayor claridad, calma y propósito. Enfoque humano, accesible y realista para tu bienestar.",
+    "IQ Integrations transforms your online presence into a strategic, automated asset that works 24/7 to generate qualified leads and drive measurable growth.",
   icons: { icon: "/favicon.ico" },
-  keywords: [
-    "bienestar",
-    "crecimiento personal",
-    "hábitos",
-    "estrés",
-    "atención plena",
-    "vida con propósito",
-    "República Dominicana",
-  ],
-  alternates: { canonical: "/" },
+  metadataBase: new URL("https://example.com"),
   openGraph: {
-    title: "Sabio al Vivir",
+    title: "IQ Integrations | Intelligent Luxury",
     description:
-      "Guía práctica para vivir con claridad, calma y propósito.",
-    url: "/",
-    siteName: "Sabio al Vivir",
+      "IQ Integrations transforms your online presence into a strategic, automated asset that works 24/7 to generate qualified leads and drive measurable growth.",
+    url: "https://example.com",
+    siteName: "IQ Integrations",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IQ Integrations | Intelligent Luxury",
+    description:
+      "IQ Integrations transforms your online presence into a strategic, automated asset that works 24/7 to generate qualified leads and drive measurable growth.",
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        <a href="#contenido" className="skip-link">Saltar al contenido</a>
-        {/* Header fijo con blur; alto definido en CSS vars */}
+    <html
+      lang="en"
+      className={`${inter.variable} ${dmSerifDisplay.variable} scroll-smooth`}
+    >
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute left-4 top-4 z-[100] rounded-md bg-accent px-3 py-2 text-accent-foreground"
+        >
+          Skip to content
+        </a>
         <Header />
-        <main id="contenido" className="main-with-sticky">
-          {children}
-        </main>
+        <ClientWrapper>{children}</ClientWrapper>
         <Footer />
       </body>
     </html>

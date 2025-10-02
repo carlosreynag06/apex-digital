@@ -1,267 +1,363 @@
-// app/page.tsx
 "use client";
+import Link from "next/link";
+import Image from "next/image";
+import { useRef } from "react";
+import { motion, useInView, type Variants } from "framer-motion";
+import { LuArrowUpRight, LuClock, LuTrendingUp, LuUsers } from "react-icons/lu";
 
-import { useState } from "react";
-import MotionWrapper from "@/components/MotionWrapper"; // Assuming MotionWrapper is in this path
-
-// Helper component for the FAQ chevron icon
-const ChevronIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-5 w-5 transition-transform duration-300 group-open:rotate-180"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-);
-
-// New SVG Icons for the Process section
-const ChatIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[rgb(var(--primary))]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
-);
-
-const PlanIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[rgb(var(--primary))]"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
-);
-
-const HandshakeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[rgb(var(--primary))]"><path d="M12 11V3"></path><path d="M18 11V3"></path><path d="M12 11a4 4 0 0 1 0 8c-2.478 0-4.041 1.258-4 4"></path><path d="M18 11a4 4 0 0 1 0 8c2.478 0 4.041 1.258 4 4"></path><path d="M6 11V3"></path></svg>
-);
-
-// Narrow the state to valid service keys
-type ServiceKey = "personal" | "pareja" | "talleres";
-
-export default function Home() {
-  const [activeService, setActiveService] = useState<ServiceKey>("personal");
-
-  const services = {
-    personal: {
-      title: "Sesiones Personales",
-      description: "Conversaciones privadas para organizar ideas, reducir el ruido y diseñar próximos pasos realistas.",
-      items: ["Claridad en decisiones importantes", "Herramientas de manejo del estrés", "Planes sencillos y sostenibles"],
+const sectionVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.8, 0.25, 1] as const,
+      staggerChildren: 0.1,
     },
-    pareja: {
-      title: "Terapia de Pareja",
-      description: "Herramientas prácticas para mejorar la comunicación y construir acuerdos saludables en la relación.",
-      items: ["Comunicación empática y escucha activa", "Manejo de conflictos y negociación", "Reconexión emocional y confianza"],
-    },
-    talleres: {
-      title: "Talleres y Charlas",
-      description: "Actividades prácticas para equipos y grupos, con ejemplos de la vida real para un bienestar colectivo.",
-      items: ["Bienestar y hábitos saludables", "Comunicación con empatía", "Trabajo con propósito"],
-    },
-  };
+  },
+};
 
-  const processSteps = [
-    { icon: <ChatIcon />, title: "Primera conversación", description: "Hablamos de lo que te trae aquí y vemos si este espacio es adecuado para ti." },
-    { icon: <PlanIcon />, title: "Plan terapéutico", description: "Si decidimos continuar, trazaremos juntos un plan con objetivos claros y flexibles." },
-    { icon: <HandshakeIcon />, title: "Sesiones de seguimiento", description: "Nos reuniremos semanal o quincenalmente, online o presencial según te convenga." },
-  ];
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.8, 0.25, 1] as const },
+  },
+};
 
-  const faqs = [
-    { q: "¿Las sesiones garantizan resultados?", a: "No ofrecemos garantías. Cada proceso es personal. Compartimos herramientas y apoyo para que avances a tu ritmo." },
-    { q: "¿Puedo cancelar o reprogramar?", a: "Sí, con aviso previo razonable. Buscamos que el espacio funcione para ti." },
-    { q: "¿Atienden fuera de República Dominicana?", a: "Sí, atendemos de forma virtual y ajustamos horarios cuando sea posible." },
-    { q: "¿Cómo es la primera conversación?", a: "Es una charla breve para entender tu situación y acordar próximos pasos realistas." },
-  ];
+const metricCardVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.5 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5, ease: [0.25, 0.8, 0.25, 1] as const },
+  },
+};
+
+// Data for the hero metric cards with updated brand gradients
+const heroMetrics = [
+  {
+    icon: LuTrendingUp,
+    value: "+20%",
+    label: "Lead Increase",
+    gradient: "linear-gradient(135deg, #3B82F6 0%, #A78BFA 100%)",
+  },
+  {
+    icon: LuArrowUpRight,
+    value: "+15%",
+    label: "Conversion Lift",
+    gradient: "linear-gradient(135deg, #A78BFA 0%, #3B82F6 100%)",
+  },
+  {
+    icon: LuClock,
+    value: "+10",
+    label: "Hours Saved Weekly",
+    gradient: "linear-gradient(135deg, #E0E7FF 0%, #3B82F6 100%)",
+  },
+  {
+    icon: LuUsers,
+    value: "+25%",
+    label: "Client Engagement",
+    gradient: "linear-gradient(135deg, #DBEAFE 0%, #A78BFA 100%)",
+  },
+];
+
+const unifiedGradient = "linear-gradient(135deg, #3B82F6 0%, #4F46E5 100%)";
+
+// Data for Service Pillars, updated to three items with brand gradients
+const servicePillars = [
+  {
+    title: "Intelligent Websites",
+    description:
+      "High-performance websites engineered to be your #1 salesperson, attracting qualified leads around the clock.",
+    gradient: unifiedGradient,
+  },
+  {
+    title: "AI Integrations",
+    description:
+      "Embed intelligent automation into your digital core, from smart chatbots to insightful dashboards.",
+    gradient: unifiedGradient,
+  },
+  {
+    title: "Custom CRM",
+    description:
+      "A powerful, intuitive platform to be the central hub for your customer data, seamlessly integrated with your business.",
+    gradient: unifiedGradient,
+  },
+];
+
+// Data for Process Overview with expanded descriptions
+const processSteps = [
+  {
+    title: "01. DISCOVERY & STRATEGY",
+    description:
+      "We start with a deep dive into your business, target audience, and objectives. This ensures the strategic blueprint we create is perfectly aligned with your vision for growth.",
+  },
+  {
+    title: "02. ARCHITECTURE & DEVELOPMENT",
+    description:
+      "Our team designs and develops a pixel-perfect, high-performance website system. We focus on clean code and a scalable foundation to create a reliable long-term asset for your business.",
+  },
+  {
+    title: "03. REVISION & OPTIMIZATION",
+    description:
+      "We present the initial build for your feedback, collaborating closely to refine every detail. This iterative process ensures the final product exceeds your expectations.",
+  },
+  {
+    title: "04. DEPLOYMENT & EVOLUTION",
+    description:
+      "We handle the full deployment process for a seamless launch. Afterward, we leverage analytics to provide continuous, data-driven improvements, ensuring your digital asset appreciates over time.",
+  },
+];
+
+export default function HomePage() {
+  const heroRef = useRef<HTMLElement | null>(null);
+  const corePromiseRef = useRef<HTMLElement | null>(null);
+  const servicesRef = useRef<HTMLElement | null>(null);
+  const processRef = useRef<HTMLElement | null>(null);
+  const finalCtaRef = useRef<HTMLElement | null>(null);
+
+  const heroInView = useInView(heroRef, { once: true, amount: 0.3 });
+  const corePromiseInView = useInView(corePromiseRef, {
+    once: true,
+    amount: 0.2,
+  });
+  const servicesInView = useInView(servicesRef, { once: true, amount: 0.2 });
+  const processInView = useInView(processRef, { once: true, amount: 0.2 });
+  const finalCtaInView = useInView(finalCtaRef, { once: true, amount: 0.5 });
 
   return (
     <>
-      <main className="overflow-hidden">
-        {/* ============= HERO SECTION: Your First Breath of Calm ============= */}
-        <section
-          id="inicio"
-          className="relative flex items-center justify-center min-h-screen pt-[var(--header-height-mobile)] md:pt-[var(--header-height-desktop)]"
+      {/* 1. Hero */}
+      <section
+        ref={heroRef}
+        className="relative flex min-h-screen w-full items-center"
+        style={{
+          background: "radial-gradient(circle at top left, #E0E7FF 0%, #F9FAFB 40%)",
+        }}
+      >
+        <motion.div
+          initial="hidden"
+          animate={heroInView ? "visible" : "hidden"}
+          variants={sectionVariants}
+          className="mx-auto grid w-full max-w-[1280px] items-center gap-12 px-[24px] md:grid-cols-2 md:px-[32px]"
         >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(245,206,199,0.3)_0%,transparent_70%)]"
-          />
-          {/* Correction: Added bottom padding to raise content block for better visual centering */}
-          <div className="container-padded relative z-10 text-center pb-16 md:pb-20">
-            <div className="mx-auto max-w-3xl space-y-6 md:space-y-8">
-              <MotionWrapper delay={0}>
-                <span className="inline-flex items-center rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs text-[rgb(var(--text-muted))] shadow-sm backdrop-blur-sm">
-                  Bienvenido a <strong className="ml-1 text-[rgb(var(--text-primary))]">Sabio al Vivir</strong>
-                </span>
-              </MotionWrapper>
-
-              <MotionWrapper delay={0.1}>
-                <h1 className="h1">
-                  Vive con <span className="text-[rgb(var(--primary))]">claridad</span>,
-                  <br />
-                  <span className="text-[rgb(var(--secondary))] font-medium">calma</span> y propósito
-                </h1>
-              </MotionWrapper>
-
-              <MotionWrapper delay={0.2}>
-                <p className="lead max-w-2xl mx-auto">
-                  Apoyo profesional y recursos prácticos para avanzar a tu ritmo. Un enfoque humano, accesible y realista para tu bienestar
-                </p>
-              </MotionWrapper>
-
-              <MotionWrapper delay={0.3}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                  <a href="/contacto" className="inline-block rounded-full bg-[rgb(var(--primary))] px-8 py-3 font-medium text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--primary))] focus-visible:ring-offset-2">
-                    Agendar conversación
-                  </a>
-                  <a href="/servicios" className="inline-block rounded-full border border-[rgb(var(--primary))] bg-transparent px-8 py-3 font-medium text-[rgb(var(--primary))] transition-colors hover:bg-[rgb(var(--accent))]">
-                    Conocer servicios
-                  </a>
-                </div>
-              </MotionWrapper>
+          {/* Left Column */}
+          <motion.div variants={itemVariants} className="text-left">
+            <h1 className="font-heading text-[48px] leading-[1.2] md:text-[60px] lg:text-[72px]">
+              <span className="whitespace-nowrap">Intelligent Websites</span>
+              <span className="block">Client Acquisition Machines</span>
+            </h1>
+            <p className="mt-4 max-w-xl text-balance text-[16px] text-foreground md:text-[17px] lg:text-[18px]">
+              IQ Integrations transforms your online presence into a strategic,
+              automated asset that works 24/7 to generate qualified leads and
+              drive measurable growth.
+            </p>
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row">
+              <Link
+                href="/contact"
+                className="inline-block w-full rounded-lg bg-accent px-8 py-4 font-medium uppercase tracking-wider text-accent-foreground shadow-lg shadow-blue-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/30 active:translate-y-0 active:scale-100 sm:w-auto"
+              >
+                Book A Call
+              </Link>
+              <Link
+                href="/services"
+                className="inline-block w-full rounded-lg border border-border bg-background-alt px-8 py-4 font-medium uppercase tracking-wider text-text-heading transition-colors hover:border-text-body hover:bg-white sm:w-auto"
+              >
+                Explore Our Services
+              </Link>
             </div>
+          </motion.div>
+
+          {/* Right Column */}
+          <div className="flex items-center justify-center">
+            <motion.div
+              variants={sectionVariants}
+              className="grid max-w-sm grid-cols-2 gap-4 md:gap-6"
+            >
+              {heroMetrics.map((metric) => (
+                <motion.div
+                  key={metric.label}
+                  variants={metricCardVariants}
+                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl p-4 text-center text-white shadow-lg"
+                  style={{ background: metric.gradient }}
+                >
+                  <metric.icon className="h-8 w-8" />
+                  <p className="font-heading text-3xl md:text-4xl">
+                    {metric.value}
+                  </p>
+                  <p className="text-sm opacity-80">{metric.label}</p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* ============= SOBRE SECTION: From Overwhelm to Understanding ============= */}
-        <section id="sobre" className="py-20 md:py-32 bg-[rgb(var(--accent))]">
-          <div className="container-padded">
-            {/* Correction: Section header is now centered on top */}
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="h2 text-[rgb(var(--text-primary))]">
-                A veces, el paso más valiente <br />
-                <span className="text-[rgb(var(--primary))]">es simplemente pedir ayuda</span>
-
+      {/* 2. Core Promise */}
+      <section ref={corePromiseRef} className="bg-background-alt py-20 lg:py-24">
+        <div className="mx-auto max-w-[1280px] px-[24px] md:px-[32px]">
+          <motion.div
+            initial="hidden"
+            animate={corePromiseInView ? "visible" : "hidden"}
+            variants={sectionVariants}
+            className="grid items-center gap-12 md:grid-cols-2 md:gap-[80px]"
+          >
+            <motion.div variants={itemVariants}>
+              <h2 className="font-heading text-[36px] leading-[1.3] md:text-[48px] lg:text-[56px]">
+                Beyond a Website. A Digital Ecosystem
               </h2>
-              <p className="lead mt-4">
-                No tienes que luchar solo. Soy la Licda. Lidia González y te ofrezco un apoyo profesional y completamente confidencial para ayudarte a navegar los desafíos de la vida.
+              <p className="mt-4 text-[16px] text-foreground md:text-[17px] lg:text-[18px]">
+                Most agencies deliver a beautiful but passive website.
+                We build intelligent, integrated systems. Your website becomes
+                the central hub of an automated machine designed to attract,
+                engage, and convert your ideal clients, giving you a
+                formidable competitive advantage.
               </p>
-            </div>
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <Image
+                src="/website-services.png"
+                alt="Dashboard showing website analytics and lead data"
+                width={800}
+                height={450}
+                className="h-auto w-full rounded-2xl object-cover shadow-xl"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
-            {/* Correction: Grid starts after the header, creating the two-column layout below */}
-            <div className="mt-16 grid items-center gap-12 md:grid-cols-2 md:gap-16">
-              {/* Correction: Increased vertical space between boxes to space-y-6 */}
-              <div className="space-y-6"> 
-                <MotionWrapper delay={0.1}>
-                  <p className="flex items-center rounded-2xl bg-white/70 p-4 min-h-[64px] text-[rgb(var(--text-primary))] shadow-sm">
-                    ¿Te sientes triste y vacío?
-                  </p>
-                </MotionWrapper>
-                <MotionWrapper delay={0.15}>
-                  <p className="flex items-center rounded-2xl bg-white/70 p-4 min-h-[64px] text-[rgb(var(--text-primary))] shadow-sm">
-                    ¿Sientes que tu relación de pareja no va bien?
-                  </p>
-                </MotionWrapper>
-                <MotionWrapper delay={0.2}>
-                  <p className="flex items-center rounded-2xl bg-white/70 p-4 min-h-[64px] text-[rgb(var(--text-primary))] shadow-sm">
-                    ¿Perdiste a un ser querido y no sabes cómo seguir?
-                  </p>
-                </MotionWrapper>
-              </div>
-              <MotionWrapper delay={0.3}>
-                <div className="relative rounded-3xl bg-white p-8 md:p-10 shadow-lg">
-                  <h2 className="h2">Un refugio para tus emociones</h2>
-                  <div className="mt-4 space-y-4 text-[rgb(var(--text-muted))]">
-                    <p>La terapia es un acto de amor propio. Buscar apoyo no es una señal de debilidad, sino de inmensa fortaleza.</p>
-                    <p>Es darte el permiso de parar, de entenderte mejor y de adquirir herramientas para vivir de una manera más plena y consciente.</p>
-                  </div>
-                  <div className="mt-8">
-                    <a href="/contacto" className="inline-block rounded-full bg-[rgb(var(--primary))] px-8 py-3 font-medium text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg">
-                      Comienza tu camino
-                    </a>
+      {/* 3. Service Pillars */}
+      <section
+        ref={servicesRef}
+        className="mx-auto w-full px-[24px] py-20 md:px-[32px] lg:py-24"
+      >
+        <motion.div
+          initial="hidden"
+          animate={servicesInView ? "visible" : "hidden"}
+          variants={sectionVariants}
+          className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16"
+        >
+          {/* Left Column: Text */}
+          <motion.div variants={itemVariants} className="lg:pr-8">
+            <h2 className="font-heading text-[36px] leading-[1.3] md:text-[40px]">
+              Intelligent Systems, Automated Results
+            </h2>
+            <p className="mt-4 text-lg text-foreground">
+             The era of the static "digital brochure" is over. A modern online presence must do more than just represent your brand—it must actively work to grow it. This requires a fundamental shift in thinking, from a simple website to an intelligent, automated system.
+            </p>
+          </motion.div>
+
+          {/* Right Column: Cards */}
+          <div className="flex flex-col gap-8">
+            {servicePillars.map((pillar) => (
+              <motion.div key={pillar.title} variants={itemVariants}>
+                <div
+                  className="relative flex h-full flex-col overflow-hidden rounded-2xl p-8 text-white shadow-xl transition-transform duration-300 hover:-translate-y-2"
+                >
+                  <div
+                    className="absolute inset-0 z-0"
+                    style={{ background: pillar.gradient }}
+                  />
+                  <div className="absolute inset-0 z-0 bg-black/20" />
+                  <div className="relative z-10 flex h-full flex-col">
+                    <h3 className="font-heading text-[24px] lg:text-[30px]">
+                      {pillar.title}
+                    </h3>
+                    <p className="mt-2 flex-1 opacity-80">
+                      {pillar.description}
+                    </p>
                   </div>
                 </div>
-              </MotionWrapper>
-            </div>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* ============= SERVICIOS SECTION: Your Path to Well-being ============= */}
-        <section id="servicios" className="py-20 md:py-32">
-          <div className="container-padded">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="h2">Cómo podemos ayudarte</h2>
-              <p className="lead mt-4">Opciones flexibles según tus necesidades. Todo en lenguaje sencillo y aplicable.</p>
-            </div>
-            
-            <div className="mt-12">
-              <div className="flex flex-wrap justify-center gap-2 md:gap-4 border-b border-black/10 pb-4">
-                <button onClick={() => setActiveService('personal')} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${activeService === 'personal' ? 'bg-[rgb(var(--primary))] text-white' : 'text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--accent))]'}`}>Sesiones Personales</button>
-                <button onClick={() => setActiveService('pareja')} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${activeService === 'pareja' ? 'bg-[rgb(var(--primary))] text-white' : 'text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--accent))]'}`}>Terapia de Pareja</button>
-                <button onClick={() => setActiveService('talleres')} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${activeService === 'talleres' ? 'bg-[rgb(var(--primary))] text-white' : 'text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--accent))]'}`}>Talleres y Charlas</button>
-              </div>
-              
-              <div className="mt-8 mx-auto max-w-2xl rounded-3xl bg-[rgb(var(--accent))] p-8 text-center min-h=[280px]">
-                <h3 className="text-xl font-semibold text-[rgb(var(--text-primary))]">{services[activeService].title}</h3>
-                <p className="mt-2 text-sm text-[rgb(var(--text-muted))]">{services[activeService].description}</p>
-                <ul className="mt-6 space-y-2 text-sm text-left inline-block">
-                  {services[activeService].items.map(item => (
-                    <li key={item} className="flex items-center gap-3">
-                      <svg className="h-4 w-4 flex-shrink-0 text-[rgb(var(--primary))]" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                      <span className="text-[rgb(var(--text-primary))]">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============= PROCESO SECTION: Our Journey Together ============= */}
-        <section id="proceso" className="py-20 md:py-32 bg-[rgb(var(--accent))]">
-          <div className="container-padded">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="h2">Nuestro viaje juntos, paso a paso</h2>
-              <p className="lead mt-4">Un proceso claro y humano, diseñado para que te sientas en confianza desde el primer día.</p>
-            </div>
-            <div className="relative mt-16">
-              <div aria-hidden="true" className="absolute left-1/2 top-0 -ml-px h-full w-0.5 bg-[rgb(var(--primary))] opacity-20"></div>
+      {/* 4. Our Blueprint for Your Success (Process) */}
+      <section ref={processRef} className="bg-background-alt py-20 lg:py-24">
+        <div className="mx-auto max-w-[1280px] px-[24px] md:px-[32px]">
+          <motion.div
+            initial="hidden"
+            animate={processInView ? "visible" : "hidden"}
+            variants={sectionVariants}
+          >
+            <motion.h2
+              variants={itemVariants}
+              className="text-center font-heading text-[36px] leading-[1.3] md:text-[48px] lg:text-[56px]"
+            >
+              Our Blueprint for Your Success
+            </motion.h2>
+            <div className="relative mt-16 flex flex-col gap-16 md:gap-8">
+              <div className="absolute left-0 top-0 hidden h-full w-[1px] bg-border" />
               {processSteps.map((step, index) => (
-                <MotionWrapper key={index} className={`relative mb-12 flex items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                    <div className="rounded-2xl bg-white p-6 shadow-md">
-                      <div className="mb-2 flex justify-center items-center h-10 w-10 rounded-full bg-white shadow-inner">{step.icon}</div>
-                      <h3 className="mt-2 text-lg font-semibold">{step.title}</h3>
-                      <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">{step.description}</p>
-                    </div>
+                <motion.div
+                  key={step.title}
+                  variants={itemVariants}
+                  className="relative grid gap-4 text-center md:grid-cols-2 md:text-left"
+                >
+                  <div
+                    className={
+                      index % 2 === 0
+                        ? "md:pr-8 md:text-right"
+                        : "md:col-start-2 md:pl-8"
+                    }
+                  >
+                    <h6 className="font-semibold uppercase tracking-widest text-text-heading">
+                      {step.title}
+                    </h6>
+                    <p className="mt-2 text-foreground">
+                      {step.description}
+                    </p>
                   </div>
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                    <div className="h-4 w-4 rounded-full bg-[rgb(var(--primary))] ring-8 ring-[rgb(var(--accent))]"></div>
-                  </div>
-                </MotionWrapper>
+                </motion.div>
               ))}
             </div>
-            <div className="mt-8 text-center">
-                <a href="/contacto" className="inline-block rounded-full bg-[rgb(var(--primary))] px-8 py-3 font-medium text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg">
-                  Agenda tu primera cita
-                </a>
-            </div>
-          </div>
-        </section>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* ============= FAQ SECTION: Clarity and Confidence ============= */}
-        <section className="py-20 md:py-32">
-          <div className="container-padded">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="h2">Preguntas frecuentes</h2>
-            </div>
-            <div className="mx-auto mt-12 max-w-3xl space-y-4">
-              {faqs.map((faq) => (
-                <details key={faq.q} className="group rounded-2xl bg-white/50 p-6 transition-colors hover:bg-[rgb(var(--accent))]">
-                  <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-[rgb(var(--text-primary))]">
-                    {faq.q}
-                    <ChevronIcon />
-                  </summary>
-                  <p className="mt-4 text-sm text-[rgb(var(--text-muted))]">{faq.a}</p>
-                </details>
-              ))}
-            </div>
-             <div className="mt-12 text-center">
-                <a href="/contacto" className="inline-block rounded-full border border-[rgb(var(--primary))] bg-transparent px-8 py-3 font-medium text-[rgb(var(--primary))] transition-colors hover:bg-[rgb(var(--accent))]">
-                  ¿Tienes otra duda? Contáctame
-                </a>
-            </div>
-          </div>
-        </section>
-      </main>
+      {/* 5. Final CTA */}
+      <section
+        ref={finalCtaRef}
+        className="py-20 lg:py-24"
+        style={{
+          background: "linear-gradient(95deg, #E0E7FF 0%, #FFFFFF 100%)",
+        }}
+      >
+        <motion.div
+          initial="hidden"
+          animate={finalCtaInView ? "visible" : "hidden"}
+          variants={sectionVariants}
+          className="mx-auto max-w-[1280px] px-[24px] text-center md:px-[32px]"
+        >
+          <motion.h2
+            variants={itemVariants}
+            className="font-heading text-[36px] leading-[1.3] text-text-heading md:text-[40px]"
+          >
+            Ready to Build Your Strategic Asset?
+          </motion.h2>
+          <motion.p
+            variants={itemVariants}
+            className="mx-auto mt-4 max-w-2xl text-lg text-foreground"
+          >
+            Let's discuss how an intelligent digital ecosystem can transform
+            your business.
+          </motion.p>
+          <motion.div variants={itemVariants} className="mt-8">
+            <Link
+              href="/contact"
+              className="inline-block rounded-lg bg-accent px-8 py-4 font-medium uppercase tracking-wider text-accent-foreground shadow-lg shadow-blue-500/20 transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/30 active:translate-y-0 active:scale-100"
+            >
+              Book a No-Obligation Call
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
     </>
   );
 }
